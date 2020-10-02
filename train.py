@@ -28,11 +28,10 @@ Options:
 def main():
     # Parse input data 
     args = parsing_inputs()
-    print(args)
 
     # Obtain the dataloaders and a dictionary class_to_idx we will use during prediction
     trainloader, validloader, testloader, class_to_idx = load_data(args)
-    print(trainloader)
+    
 
     # Now we download the model based on the input and select the device we will train it on
     possible_inputs = {'vgg16':25088, 'alexnet': 9216}
