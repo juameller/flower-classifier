@@ -1,0 +1,32 @@
+from train_utils import parsing_inputs
+
+"""
+Command line application to train a pretrained deep neural networks to predict flower types.
+
+Basic usage: 
+    python train.py path/to/imagefolder
+
+Options:
+    Save a checkpoint:
+    python train.py path/to/imagefolder --save_dir checkpointdir
+    
+    Select the architecture of the classifier:
+    python train.py path/to/imagefolder --arch vgg16
+    
+    Set different hyperparameters:
+    - Specify the learning rate: python train.py path/to/imagefolder --learning_rate 0.001
+    - Specify the number of epochs: python train.py path/to/imagefolder --epochs 5
+    - Specify the batch size: python train.py path/to/imagefolder --batch_size 32
+    - Specify how often the training info is printed: python train.py path/to/imagefolder --printed_every 20
+    - Specify the number of hidden units: python train.py path/to/imagefolder --hidden_units 1024 512
+    - Specify the dropout: python train.py path/to/imagefolder --dropout 0.1
+    - Compute in GPU: python train.py path/to/imagefolder --gpu
+"""
+
+def main():
+    # Parse input data 
+    args = parsing_inputs()
+    print(args)
+
+if __name__ == '__main__':
+    main()
