@@ -189,4 +189,37 @@ def train(model, device, args, trainloader, validloader, criterion):
                 running_loss = 0
                 # Set the model to training mode
                 model.train()
+
+def validation_test(model, testloader, device, criterion):
+    
+    """
+    Function to perfom the validation loop on unseen data.
+    
+    Inputs:
+        model : Trained model.
+        testloader: Data loader for the test subset.
+        device: To select whether the validation loop is performed in CPU/GPU
+        criterion: To specify how the loss is computed
+    Outputs: 
+        None: The results are printed on screen.
+    """
+    model.eval()
+    test_loss = 0
+    accuracy = 0
+    for images, labels in testloader:
+        images,labels = images.to(device), labels.to(device)
+        # Forward feed
+        logps = model.forward(images)
+        # Compute the error
+        test_loss += criterion(logps, labels).item()
+        # Obtain the probabilities
+        ps = torch.exp(logps)
+        top_p, top_class = ps.topk(1, dim=1)
+        equal = top_class == labels.view(*top_class.shape)
+        # We have to convert the byte tensor to FloatTensor in order to do the mean
+        accuracy += torch.mean(equal.type(torch.FloatTensor)).item()
+  
+    # Now we can print the results:
+    print('############ PERFORMANCE ON UNSEEN DATA ############')
+    print(f'Validation Error: {test_loss/len(testloader):.3f} ... Accuracy: {accuracy/len(testloader)*100}%')
   

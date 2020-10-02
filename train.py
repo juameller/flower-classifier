@@ -41,5 +41,9 @@ def main():
     criterion = nn.NLLLoss()
     train(model, device, args, trainloader, validloader, criterion)
 
+    # We then perform a validation test on new unseen data
+    with torch.no_grad():
+        validation_test(model, testloader, device, criterion)
+
 if __name__ == '__main__':
     main()
