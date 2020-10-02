@@ -1,6 +1,6 @@
 import sys
 import torch
-from torch import nn
+from torch import nn, optim
 from torch.nn import functional as F
 from torchvision import transforms, datasets, models
 
@@ -119,3 +119,74 @@ def build_model(possible_inputs, args):
     model = model.to(device)
     
     return model, device
+
+
+def train(model, device, args, trainloader, validloader, criterion):
+    
+    """
+    Training loop for the model
+    
+    Inputs:
+        model: Pretrained model
+        device: To select wether we will train on CPU/GPU
+        args: Command line input from user (contains number of epochs, lr, etc.)
+        trainloader: Data loader for the training subset.
+        validloader: Data loader for the validation subset
+        criterion: To specify how the loss is computed
+    Output:
+        model: Trained model
+    """
+    
+    optimizer = optim.Adam(model.classifier.parameters(), lr=args.learning_rate)
+    epochs = args.epochs
+    steps = 0
+    print_every = args.print_every
+    running_loss = 0        
+    for e in range(epochs):
+        for images,labels in trainloader:
+            # We are going to count the number of steps performed
+            steps += 1
+            # We move the inputs and labels to GPU
+            images, labels = images.to(device), labels.to(device)
+            # After we zero_grad everything
+            optimizer.zero_grad()
+            # Then we perform the feedforward
+            logps = model.forward(images)
+            # Compute the error
+            loss = criterion(logps, labels)
+            # We back propagate it
+            loss.backward()
+            # We perform one move
+            optimizer.step()
+            # We sum up the loss
+            running_loss += loss.item()
+            print("OneStep more!")
+
+            # Now we can check if we do the validation test
+            if steps % print_every == 0:
+                # We can set the model to evaluation mode
+                with torch.no_grad():
+                    model.eval()
+                    validation_loss = 0
+                    accuracy = 0
+                    for images, labels in validloader:
+                        images,labels = images.to(device), labels.to(device)
+                        # Forward feed
+                        logps = model.forward(images)
+                        # Compute the error
+                        validation_loss += criterion(logps, labels).item()
+                        # Obtain the probabilities
+                        ps = torch.exp(logps)
+                        top_p, top_class = ps.topk(1, dim=1)
+                        equal = top_class == labels.view(*top_class.shape)
+                        # We have to convert the byte tensor to FloatTensor in order to do the mean
+                        accuracy += torch.mean(equal.type(torch.FloatTensor)).item()
+                    # Now we can print the results:
+                print(f'Epoch: {e+1}/{epochs} ... '
+                      f'Training Error: {running_loss/print_every:.3f} ...'
+                      f'Validation Loss {validation_loss/len(validloader):.3f} ...' 
+                      f'Accuracy: {accuracy/len(validloader)*100:.3f}%')
+                running_loss = 0
+                # Set the model to training mode
+                model.train()
+  

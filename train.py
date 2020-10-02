@@ -1,5 +1,6 @@
 from train_utils import parsing_inputs
-from train_model import load_data, build_model
+from train_model import load_data, build_model, train
+from torch import nn
 """
 Command line application to train a pretrained deep neural networks to predict flower types.
 
@@ -35,6 +36,10 @@ def main():
     # Now we download the model based on the input and select the device we will train it on
     possible_inputs = {'vgg16':25088, 'alexnet': 9216}
     model, device = build_model(possible_inputs, args)
+
+    # The next step is to define the criterion and train the model
+    criterion = nn.NLLLoss()
+    train(model, device, args, trainloader, validloader, criterion)
 
 if __name__ == '__main__':
     main()
