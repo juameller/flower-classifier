@@ -222,4 +222,31 @@ def validation_test(model, testloader, device, criterion):
     # Now we can print the results:
     print('############ PERFORMANCE ON UNSEEN DATA ############')
     print(f'Validation Error: {test_loss/len(testloader):.3f} ... Accuracy: {accuracy/len(testloader)*100}%')
+
+def save_check(args, model, class_to_idx, possible_inputs):
+    
+    """
+    Function to save the chekcpoint with all the information needed to rebuild the model
+    
+    Inputs:
+        args: Input from the user
+        model: trained model
+        class_to_idx: Mapping from classes to indeces.
+        possible_inputs: A list with the possible architectures this application uses.
+        
+    Output:
+        None: The checkpoint is saved with in the path provided by the user
+    
+    """
+     
+    checkpoint = {'state_dict': model.classifier.state_dict(),
+             'epochs':args.epochs,
+             'class_to_idx' : class_to_idx,
+             'input_size': possible_inputs[args.arch],
+             'output_size': 102,
+             'hidden_layers' : args.hidden_units,
+             'dropout' : args.dropout,
+             'arch' : args.arch}
+    # We try to save the model from GPU
+    torch.save(checkpoint, args.save_dir)
   

@@ -1,6 +1,7 @@
 from train_utils import parsing_inputs
-from train_model import load_data, build_model, train
+from train_model import load_data, build_model, train, validation_test, save_check
 from torch import nn
+import torch
 """
 Command line application to train a pretrained deep neural networks to predict flower types.
 
@@ -44,6 +45,9 @@ def main():
     # We then perform a validation test on new unseen data
     with torch.no_grad():
         validation_test(model, testloader, device, criterion)
+
+    # Finally we save the checkpoint
+    save_check(args, model, class_to_idx, possible_inputs)
 
 if __name__ == '__main__':
     main()
