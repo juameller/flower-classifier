@@ -74,6 +74,10 @@ docs/_build/
 # PyBuilder
 target/
 
+# Folders
+.DS_Store
+flower_data/
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
