@@ -1,6 +1,8 @@
 import sys
 import torch
-from torchvision import transforms, datasets
+from torch import nn
+from torch.nn import functional as F
+from torchvision import transforms, datasets, models
 
 def load_data(args):
     
@@ -43,3 +45,77 @@ def load_data(args):
     testloader = torch.utils.data.DataLoader(test_dataset, shuffle=True, batch_size=args.batch)
     
     return trainloader, validloader, testloader, train_dataset.class_to_idx
+
+
+class MyClassifier(nn.Module):
+    """
+    Fully conneceted classifier we will train to predict flower names from images
+    Inputs:
+        input_size: Depending on the model
+        output_size: Depending on the problem (102 classes in this case)
+        hidden_layers: The user can choose the number of ReLU hidden layers.
+        dropout_p: Probability of dropout.
+    """
+    def __init__(self, input_size, output_size, hidden_layers,dropout_p):
+        super().__init__()
+        # The first layer 
+        self.hidden_layers = nn.ModuleList([nn.Linear(input_size, hidden_layers[0])])
+        # We pair the rest of the layers and define them
+        paired_layers = zip(hidden_layers[:-1], hidden_layers[1:])
+        for p1,p2 in paired_layers:
+            self.hidden_layers.append(nn.Linear(p1,p2))
+        # Define the output layer
+        self.output_layer = nn.Linear(hidden_layers[-1],output_size)
+
+        # Define that we will be using dropout - We will also check that it is between 0 and 1
+        try:
+            self.dropout = nn.Dropout(p=dropout_p)
+        except ValueError:
+            print("The dropout probability has to be between 0 and 1 amd got ",dropout_p)
+            print("Please introduce a valid p")
+            sys.exit("Program terminating.")
+
+
+    # Then we define the forward method
+    def forward(self,x):
+        for layer in self.hidden_layers:
+            x = layer(x)
+            x = F.relu(x)
+            x = self.dropout(x)
+        x = self.output_layer(x)
+        x = F.log_softmax(x,dim=1)
+        return x
+    
+def build_model(possible_inputs, args):
+    
+    """
+    Inputs:
+        possible_models: A dictionary with the models that this application uses.
+        args: User input from command line
+    Outputs:
+        model: Pretrained model with the classifier defined by the user
+        device: It selects whether the model is trained in CPU/GPU
+    
+    """
+    #if args.arch not in possible_inputs:
+    #    print("The architecture you have selected is not recognized.")
+    #    print("Please select an architecrure from: ",list(possible_inputs.keys()))
+    #    sys.exit("Wrong architecture. Program terminating")
+    #else:
+    if args.arch == 'vgg16':
+        model = models.vgg16(pretrained = True)
+    elif args.arch == 'alexnet':
+        model = models.alexnet(pretrained = True)        
+    # From here we can indicate not to compute the gradient
+    for param in model.parameters():
+        param.requieres_grad = False
+    # Now we attach our classifier
+    input_size = possible_inputs[args.arch]
+    output_size = 102
+    classifier = MyClassifier(input_size, output_size, args.hidden_units, args.dropout)
+    model.classifier = classifier
+    
+    device = "cuda:0" if torch.cuda.is_available() and args.gpu else "cpu"
+    model = model.to(device)
+    
+    return model, device

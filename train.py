@@ -1,5 +1,5 @@
 from train_utils import parsing_inputs
-from train_model import load_data
+from train_model import load_data, build_model
 """
 Command line application to train a pretrained deep neural networks to predict flower types.
 
@@ -31,6 +31,10 @@ def main():
     # Obtain the dataloaders and a dictionary class_to_idx we will use during prediction
     trainloader, validloader, testloader, class_to_idx = load_data(args)
     print(trainloader)
+
+    # Now we download the model based on the input and select the device we will train it on
+    possible_inputs = {'vgg16':25088, 'alexnet': 9216}
+    model, device = build_model(possible_inputs, args)
 
 if __name__ == '__main__':
     main()
