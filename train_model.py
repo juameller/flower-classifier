@@ -160,7 +160,7 @@ def train(model, device, args, trainloader, validloader, criterion):
             optimizer.step()
             # We sum up the loss
             running_loss += loss.item()
-            print("OneStep more!")
+            
 
             # Now we can check if we do the validation test
             if steps % print_every == 0:
