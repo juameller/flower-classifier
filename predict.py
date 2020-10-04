@@ -1,4 +1,5 @@
 from predict_utils import parse_inputs, process_image
+from predict_model import loadcheckpoint
 """
 Command line application to predict flower name from image.
 
@@ -26,6 +27,10 @@ def main():
     # We get the image as a FloatTensor
     img = process_image(args.image)
     print(img.shape)
+
+    # We now have to load the checkpoint and build the model
+    model = loadcheckpoint(args)
+    print(model)
     
         
 if __name__ == '__main__':
