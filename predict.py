@@ -1,5 +1,6 @@
 from predict_utils import parse_inputs, process_image
 from predict_model import loadcheckpoint
+import torch
 """
 Command line application to predict flower name from image.
 
@@ -31,6 +32,11 @@ def main():
     # We now have to load the checkpoint and build the model
     model = loadcheckpoint(args)
     print(model)
+
+    # We will performe the calculation in the select device
+    device = "cuda:0" if torch.cuda.is_available() and args.gpu else "cpu"
+    print(f'These computations are performed in {device}')
+    model.to(device)
     
         
 if __name__ == '__main__':
