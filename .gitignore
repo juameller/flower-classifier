@@ -76,6 +76,7 @@ target/
 
 # Folders
 .DS_Store
+classifier_vgg16_vlast.pth
 flower_data/
 
 # Jupyter Notebook
