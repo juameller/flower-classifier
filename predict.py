@@ -1,4 +1,4 @@
-from predict_utils import parse_inputs
+from predict_utils import parse_inputs, process_image
 """
 Command line application to predict flower name from image.
 
@@ -22,6 +22,10 @@ def main():
     # Parse input arguments
     args = parse_inputs()
     print(args)
+
+    # We get the image as a FloatTensor
+    img = process_image(args.image)
+    print(img.shape)
     
         
 if __name__ == '__main__':
