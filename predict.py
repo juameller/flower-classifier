@@ -1,6 +1,7 @@
 from predict_utils import parse_inputs, process_image
 from predict_model import loadcheckpoint, predict
 import torch
+import json
 """
 Command line application to predict flower name from image.
 
@@ -23,15 +24,15 @@ Options:
 def main():
     # Parse input arguments
     args = parse_inputs()
-    print(args)
+    
 
     # We get the image as a FloatTensor
     img = process_image(args.image)
-    print(img.shape)
+  
 
     # We now have to load the checkpoint and build the model
     model = loadcheckpoint(args)
-    print(model)
+    
 
     # We will performe the calculation in the select device
     device = "cuda:0" if torch.cuda.is_available() and args.gpu else "cpu"
@@ -53,8 +54,7 @@ def main():
             print("Please introduce a valid file.")
             sys.exit("Program terminating.")
         classes = [cat_to_name[item] for item in classes]
-    print(probs)
-    print(classes)
+ 
 
     # Printing out the results
     print(f'The {args.top_k} most likely classes of flowers are:')
