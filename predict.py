@@ -55,6 +55,13 @@ def main():
         classes = [cat_to_name[item] for item in classes]
     print(probs)
     print(classes)
+
+    # Printing out the results
+    print(f'The {args.top_k} most likely classes of flowers are:')
+    
+    for key, value in zip(classes, probs):
+        print(f'Flower: {key};    '
+              f'Probability: {value}')
     
         
 if __name__ == '__main__':
