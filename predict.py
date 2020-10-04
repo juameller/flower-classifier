@@ -1,5 +1,5 @@
 from predict_utils import parse_inputs, process_image
-from predict_model import loadcheckpoint
+from predict_model import loadcheckpoint, predict
 import torch
 """
 Command line application to predict flower name from image.
@@ -37,6 +37,24 @@ def main():
     device = "cuda:0" if torch.cuda.is_available() and args.gpu else "cpu"
     print(f'These computations are performed in {device}')
     model.to(device)
+
+    # We set the model to evaluation mode (so that we are not using dropout)
+    model.eval()
+    with torch.no_grad():
+        probs,classes = predict(img, model, args.top_k, device)
+
+    # Now, if we indicated a category_name:
+    if args.category_names:
+        try:
+            with open(args.category_names, 'r') as f:
+                cat_to_name = json.load(f)
+        except FileNotFoundError:
+            print("The category names file has not been found.")
+            print("Please introduce a valid file.")
+            sys.exit("Program terminating.")
+        classes = [cat_to_name[item] for item in classes]
+    print(probs)
+    print(classes)
     
         
 if __name__ == '__main__':

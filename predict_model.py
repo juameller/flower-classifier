@@ -34,3 +34,38 @@ def loadcheckpoint(args):
     for param in model.parameters():
         param.requieres_grad = False
     return model
+
+def predict(image, model, topk, device):
+    
+    ''' 
+    Predict the class (or classes) of an image using a trained deep learning model.
+    Inputs:
+        image: TensorFlow array.
+        model: Trained deep learning model
+        topk: Number of most likely classes the function will return.
+        device: CPU or GPU
+        
+    Outputs:
+        top_classes: List with the topk most likely categories.
+        top_p: List with the probabilities of the topk most likely categories.
+    
+    '''
+    
+    img = image.unsqueeze_(0)
+    # Now we have the tensorFlow array out model is prepared to do
+    img = img.float()
+    img = img.to(device)
+    logout = model.forward(img)
+    out = torch.exp(logout)
+    top_p, top_classes = out.topk(topk,dim=1)
+    # We invert the dictionary
+    inv_map = {val: key for key, val in model.class_to_idx.items()}
+    
+    # We want to return the classes and probs like lists
+    if topk > 1:
+        top_classes = [inv_map[item.item()] for item in top_classes.squeeze()]
+        top_p = [item.item() for item in top_p.squeeze()]
+    else:
+        top_classes = [inv_map[top_classes.item()]]
+        top_p = [top_p.item()]
+    return top_p, top_classes
